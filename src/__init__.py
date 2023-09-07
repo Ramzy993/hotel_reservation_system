@@ -1,3 +1,3 @@
-import os
+import pathlib
 
-BASE_DIR = os.path.join(__file__, "..")
+BASE_DIR = pathlib.Path(__file__).parent.parent.absolute()

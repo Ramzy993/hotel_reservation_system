@@ -8,9 +8,10 @@ from datetime import datetime
 
 from src.common.singleton import SingletonMeta
 from src.common.config_manager import ConfigManager
+from src import BASE_DIR
 
 
-LOG_FILE_PATH = ConfigManager().get_str('LOGGER', 'log_file_path')
+LOG_FILE_PATH = os.path.join(BASE_DIR, 'logs')
 
 
 def _initialize_log_directory():
@@ -27,7 +28,7 @@ class LogHandler(metaclass=SingletonMeta):
     log_to_console = ConfigManager().get_bool('LOGGER', 'log_to_console', True)
     log_to_file = ConfigManager().get_bool('LOGGER', 'log_to_file', True)
     log_time_format = ConfigManager().get_str('LOGGER', 'log_time_format')
-    log_format = ConfigManager().get_str('LOGGER', 'log_time_format',
+    log_format = ConfigManager().get_str('LOGGER', 'log_format',
                                          "%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s")
     logger_name = ConfigManager().get_str('LOGGER', 'logger_name', 'HRS')
 
