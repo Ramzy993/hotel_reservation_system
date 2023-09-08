@@ -3,13 +3,13 @@ from sqlalchemy import Column, Integer, String, ARRAY
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 
-from src.db_manger.utils import EmployeeRole, RolePermissions
+from src.db_manager.utils import UserRole, RolePermissions
 
 base = declarative_base()
 
 
-class EmployeeType(base):
-    __tablename__ = 'employee_types'
+class UserType(base):
+    __tablename__ = 'users_types'
 
     id = Column(Integer, primary_key=True)
     role = Column(String, unique=True)
@@ -17,7 +17,7 @@ class EmployeeType(base):
 
     employees = relationship("Employee", back_populates="employee_type")
 
-    def __init__(self, role: EmployeeRole, permissions: list[RolePermissions]):
+    def __init__(self, role: UserRole, permissions: list[RolePermissions]):
         self.role = role
         self.permissions = [permission.value for permission in permissions]
 

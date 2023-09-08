@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 base = declarative_base()
@@ -28,7 +28,7 @@ class Employee(base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-    employee_type = relationship("EmployeeType", back_populates="employees")
+    user_type = relationship("UserType", back_populates="employees")
     hotel = relationship("Hotel", back_populates="employees")
 
     def __init__(self, hotel_id, employee_type_id, staff_number, name, username, password, email):
@@ -45,13 +45,13 @@ class Employee(base):
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
-    def set_token_expiration(self, expiration_datetime):
-        self.token_expiration = expiration_datetime
-
     def is_token_expired(self):
         if self.token_expiration is None:
             return False
         return datetime.utcnow() > self.token_expiration
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def to_json(self):
         return {

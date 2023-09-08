@@ -12,17 +12,17 @@ from src.common.config_manager import ConfigManager
 from src.common.base_exception import HRSBaseException
 from src.common.singleton import SingletonMeta
 
-from src.db_manger.modules.guests import Guest
-from src.db_manger.modules.employees import Employee
-from src.db_manger.modules.employee_types import EmployeeType
-from src.db_manger.modules.hotels import Hotel
-from src.db_manger.modules.rooms import Room
-from src.db_manger.modules.room_types import RoomType
-from src.db_manger.modules.reservations import Reservation
-from src.db_manger.modules.reservation_states import ReservationState
+from src.db_manager.models.guests import Guest
+from src.db_manager.models.employees import Employee
+from src.db_manager.models.employee_types import UserType
+from src.db_manager.models.hotels import Hotel
+from src.db_manager.models.rooms import Room
+from src.db_manager.models.room_types import RoomType
+from src.db_manager.models.reservations import Reservation
+from src.db_manager.models.reservation_states import ReservationState
 
 
-from src.db_manger.utils import EmployeeRole, RolePermissions, ReservationStatus, HotelClass
+from src.db_manager.utils import UserRole, RolePermissions, ReservationStatus, HotelClass
 
 
 base = declarative_base()
@@ -75,12 +75,15 @@ class DBDriver(metaclass=SingletonMeta):
 
     def __seed_db(self):
         for state in ReservationStatus.list_values():
-            if not self.get_reservation_states(state=state):
+            if len(self.get_reservation_states(state=state)) == 0:
                 self.create_reservation_state(state)
 
-        employee_types = self.get_employee_types(role=EmployeeRole.ADMIN.value)
-        if len(employee_types) == 0:
-            employee_types = self.create_employee_type(EmployeeRole.ADMIN.value, RolePermissions.list_values())
+        for employee_type in UserType.list_values():
+            if len(self.get_employee_types(role=employee_type)) == 0:
+                if UserRole.ADMIN.value == employee_type:
+                    self.create_employee_type(UserRole.ADMIN.value, RolePermissions.list_values())
+                else:
+                    self.create_employee_type(UserRole.ADMIN.value, [])
 
         admin_username = ConfigManager().get_str('ADMIN', 'username')
         admin_password = ConfigManager().get_str('ADMIN', 'password')
@@ -89,7 +92,8 @@ class DBDriver(metaclass=SingletonMeta):
         admin = (self.get_employees(username=admin_username) or [None])[0]
 
         if admin is None:
-            self.create_employee(employee_type_id=employee_types[0].id, username=admin_username, password=admin_password,
+            admin_role_id = self.get_employee_types(role=UserRole.ADMIN.value)[0].id
+            self.create_employee(employee_type_id=admin_role_id, username=admin_username, password=admin_password,
                                  email=admin_email, name="admin", staff_number=1, hotel_id=None)
 
     def __commit(self, records):
@@ -166,9 +170,11 @@ class DBDriver(metaclass=SingletonMeta):
 
     def update_employee_token(self, id, user_token):
         try:
+            updated_at = datetime.utcnow()
+            token_expiration = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRATION_HOURS)
+            logged_in = True
             employee = self.session.query(Employee).filter_by(id=id).first()
             employee = self.__dynamic_update(Employee, locals())
-            employee.set_token_expiration(datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRATION_HOURS))
             self.session.commit()
             return employee
 
@@ -184,9 +190,9 @@ class DBDriver(metaclass=SingletonMeta):
             self.session.rollback()
             raise DatabaseDriverException(f"Database ERROR: {e}")
 
-    def create_employee_type(self, role: EmployeeRole, permissions: list[RolePermissions]):
+    def create_employee_type(self, role: UserRole, permissions: list[RolePermissions]):
         try:
-            employee_type = EmployeeType(role=role, permissions=permissions)
+            employee_type = UserType(role=role, permissions=permissions)
             self.__commit(employee_type)
             return employee_type
 
@@ -195,7 +201,7 @@ class DBDriver(metaclass=SingletonMeta):
 
     def get_employee_types(self, id=None, role=None):
         try:
-            employee_types = self.__dynamic_filter(EmployeeType, locals()).all()
+            employee_types = self.__dynamic_filter(UserType, locals()).all()
             return employee_types
 
         except Exception as e:
@@ -204,8 +210,8 @@ class DBDriver(metaclass=SingletonMeta):
     def update_employee_type_permission(self, id, permissions: list[RolePermissions]):
         try:
             permissions = [permission.value for permission in permissions]
-            employee_type = self.session.query(EmployeeType).filter_by(id=id).first()
-            employee_type = self.__dynamic_update(EmployeeType, locals())
+            employee_type = self.session.query(UserType).filter_by(id=id).first()
+            employee_type = self.__dynamic_update(UserType, locals())
             self.session.commit()
             return employee_type
 
@@ -214,7 +220,7 @@ class DBDriver(metaclass=SingletonMeta):
 
     def delete_employee_type(self, id):
         try:
-            self.session.query(EmployeeType).filter_by(id=id).delete()
+            self.session.query(UserType).filter_by(id=id).delete()
             self.session.commit()
 
         except Exception as e:
@@ -223,7 +229,8 @@ class DBDriver(metaclass=SingletonMeta):
 
     def create_guest(self, name, username, password, email):
         try:
-            guest = Guest(username=username, password=password, name=name, email=email)
+            guest_type_id = self.get_employee_types(role=UserRole.GUEST.value)[0].id
+            guest = Guest(username=username, password=password, name=name, email=email, guest_type_id=guest_type_id)
             self.__commit(guest)
             return guest
 
@@ -240,6 +247,7 @@ class DBDriver(metaclass=SingletonMeta):
 
     def update_guest(self, id, name=None, username=None, email=None, logged_in=None):
         try:
+            updated_at = datetime.utcnow()
             guest = self.session.query(Guest).filter_by(id=id).first()
             guest = self.__dynamic_update(Guest, locals())
             self.session.commit()
@@ -250,9 +258,11 @@ class DBDriver(metaclass=SingletonMeta):
 
     def update_guest_token(self, id, user_token):
         try:
+            updated_at = datetime.utcnow()
+            token_expiration = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRATION_HOURS)
+            logged_in = True
             guest = self.session.query(Guest).filter_by(id=id).first()
             guest = self.__dynamic_update(Guest, locals())
-            guest.set_token_expiration(datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRATION_HOURS))
             self.session.commit()
             return guest
 
@@ -393,6 +403,21 @@ class DBDriver(metaclass=SingletonMeta):
             reservations = self.__dynamic_filter(Reservation, locals()).all()
             return reservations
 
+        except Exception as e:
+            raise DatabaseDriverException(f"Database ERROR: {e}")
+
+    def get_reservation_for_room_in_period(self, room_id, from_date, to_date):
+        try:
+            query = self.session.query(Reservation).filter(Reservation.room_id == room_id)
+            query = query.filter(from_date <= Reservation.end_date)
+            query = query.filter(to_date >= Reservation.start_date)
+
+            on_hold = self.get_reservation_states(state=ReservationStatus.ON_HOLD.value)[0]
+            confirmed = self.get_reservation_states(state=ReservationStatus.CONFIRMED.value)[0]
+            occupied = self.get_reservation_states(state=ReservationStatus.OCCUPIED.value)[0]
+
+            query = query.filter(Reservation.status_id.in_([on_hold.id, confirmed.id, occupied.id]))
+            return query.all()
         except Exception as e:
             raise DatabaseDriverException(f"Database ERROR: {e}")
 

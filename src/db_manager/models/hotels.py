@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String,  DateTime
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 
-from src.db_manger.utils import HotelClass
+from src.db_manager.utils import HotelClass
 
 
 base = declarative_base()

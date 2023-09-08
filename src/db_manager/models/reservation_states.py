@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 
-from src.db_manger.utils import ReservationStatus
+from src.db_manager.utils import ReservationStatus
 
 base = declarative_base()
 

@@ -15,11 +15,12 @@ class ReservationStatus(CustomEnum):
     RELEASED = "released"
 
 
-class EmployeeRole(CustomEnum):
+class UserRole(CustomEnum):
     ADMIN = "admin"
     MANAGER = "manager"
     RECEPTIONIST = "receptionist"
     HOUSEKEEPING = "housekeeping"
+    GUEST = "guest"
 
 
 class RolePermissions(CustomEnum):
