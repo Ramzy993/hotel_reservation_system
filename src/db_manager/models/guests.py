@@ -2,32 +2,29 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
-
-
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from src.db_manager import Base
 
-base = declarative_base()
 
-
-class Guest(base):
+class Guest(Base):
     __tablename__ = 'guests'
 
     id = Column(Integer, primary_key=True)
-    guest_type_id = Column(Integer, ForeignKey('user_types.id'))
+    guest_type_id = Column(Integer, ForeignKey('users_types.id'))
     name = Column(String, nullable=False)
-    username = Column(String, unique=True, nullable=False)
+    username = Column(String, unique=True, nullable=False, index=True)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    logged_in = Column(Boolean, nullable=False)
+    logged_in = Column(Boolean, nullable=False, default=False)
     user_token = Column(String)
-    token_expiration = Column(DateTime)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    token_expiration = Column(DateTime, default=datetime.utcnow())
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
 
-    user_type = relationship("UserType", back_populates="guests")
+    user_type = relationship("UserType")
+    reservations = relationship("Reservation", back_populates="guest")
 
     def __init__(self, name, username, password, email, guest_type_id):
         self.guest_type_id = guest_type_id
@@ -35,11 +32,10 @@ class Guest(base):
         self.username = username
         self.password = generate_password_hash(password=password)
         self.email = email
-        self.logged_in = False
-        self.user_token = None
-        self.token_expiration = None
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+
+    @staticmethod
+    def is_admin():
+        return False
 
     def is_token_expired(self):
         if self.token_expiration is None:

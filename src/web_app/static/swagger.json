@@ -1,0 +1,1167 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Sample API",
+    "description": "A sample API that demonstrates how to use Flask-SwaggerUI.",
+    "version": "1.0"
+  },
+  "basePath": "/api/v1",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/guest/register": {
+      "post": {
+        "summary": "register a guest to the system.",
+        "tags": ["auth"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user register data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/register"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        }
+      }
+    },
+    "/guest/login": {
+      "post": {
+        "summary": "login a guest to the system.",
+        "tags": ["auth"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user login data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "expiration_date": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "401": {
+            "description": "unauthorized user.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "404": {
+            "description": "user not found.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "500": {
+            "description": "internal server error.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/guest/logout": {
+      "post": {
+        "summary": "logout a guest from the system.",
+        "tags": ["auth"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful logout.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "internal server error.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/employee/login": {
+      "post": {
+        "summary": "login an employee to the system.",
+        "tags": ["auth"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user login data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "expiration_date": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "401": {
+            "description": "unauthorized user.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "user not found.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "500": {
+            "description": "internal server error.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/employee/logout": {
+      "post": {
+        "summary": "logout a employee from the system.",
+        "tags": ["auth"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful logout.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "internal server error.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/users/guests": {
+      "get": {
+        "summary": "get all guest in the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/guests/{guest_id}": {
+      "get": {
+        "summary": "get a guest in the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "guest_id",
+            "in": "path",
+            "description": "guest identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/user"
+            }
+          },
+          "404": {
+            "description": "guest not found.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "update a guest in the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "guest_id",
+            "in": "path",
+            "description": "guest identifier",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user_update"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/user"
+            }
+          },
+          "404": {
+            "description": "guest not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete a guest from the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "guest_id",
+            "in": "path",
+            "description": "guest identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+              }
+            }
+          },
+          "404": {
+            "description": "guest not found.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/employees": {
+      "get": {
+        "summary": "get all employees in the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/employees/{employee_id}": {
+      "get": {
+        "summary": "get a employee in the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "employee identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/user"
+            }
+          },
+          "404": {
+            "description": "employee not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "update a employee in the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "employee identifier",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user_update"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/user"
+            }
+          },
+          "404": {
+            "description": "employee not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete a employee from the system.",
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "employee identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+              }
+            }
+          },
+          "404": {
+            "description": "employee not found.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms": {
+      "get": {
+        "summary": "get all rooms in the system.",
+        "tags": ["rooms"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/room"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "create a rooms in the system.",
+        "tags": ["rooms"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "room data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/create_room"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/room"
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{room_id}": {
+      "get": {
+        "summary": "get a room from the system.",
+        "tags": ["rooms"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "description": "room identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/room"
+            }
+          },
+          "404": {
+            "description": "room not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "update a room in the system.",
+        "tags": ["rooms"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "description": "room identifier",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/room"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/room"
+            }
+          },
+          "404": {
+            "description": "room not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete a room from the system.",
+        "tags": ["rooms"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "room_id",
+            "in": "path",
+            "description": "room identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+              }
+            }
+          },
+          "404": {
+            "description": "room not found.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations": {
+      "get": {
+        "summary": "get all reservations in the system.",
+        "tags": ["reservations"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/reservation"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{reservation_id}": {
+      "get": {
+        "summary": "get reservation from the system.",
+        "tags": ["reservations"], 
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "reservation identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/reservation"
+            }
+          },
+          "404": {
+            "description": "reservation not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete reservation from the system.",
+        "tags": ["reservations"], 
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "reservation identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+              }
+            }
+          },
+          "404": {
+            "description": "reservation not found.",
+            "schema": {
+                "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/reservations/on_hold": {
+      "post": {
+        "summary": "create reservation in the system.",
+        "tags": [
+          "reservations"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "user reservation data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/create_reservation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/definitions/reservation"
+            }
+          },
+          "404": {
+            "description": "reservation not available.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{reservation_id}/confirmed": {
+      "patch": {
+        "summary": "update reservation status to be confirmed in the system.",
+        "tags": [
+          "reservations"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "reservation identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/definitions/reservation"
+            }
+          },
+          "404": {
+            "description": "reservation not available.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{reservation_id}/occupied": {
+      "patch": {
+        "summary": "update reservation status to be occupied in the system.",
+        "tags": [
+          "reservations"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "reservation identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/definitions/reservation"
+            }
+          },
+          "404": {
+            "description": "reservation not available.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{reservation_id}/canceled": {
+      "patch": {
+        "summary": "update reservation status to be canceled in the system.",
+        "tags": [
+          "reservations"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "reservation identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/definitions/reservation"
+            }
+          },
+          "404": {
+            "description": "reservation not available.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{reservation_id}/released": {
+      "patch": {
+        "summary": "update reservation status to be released in the system.",
+        "tags": [
+          "reservations"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "description": "reservation identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/definitions/reservation"
+            }
+          },
+          "404": {
+            "description": "reservation not available.",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "register": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "login": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "username": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "logged_in": {
+          "type": "boolean"
+        }
+      }
+    },
+    "user_update": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "room": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "hotel_id": {
+          "type": "integer"
+        },
+        "type_id": {
+          "type": "integer"
+        },
+        "room_number": {
+          "type": "integer"
+        },
+        "floor_number": {
+          "type": "integer"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "is_clean": {
+          "type": "boolean"
+        }
+      }
+    },
+    "create_room": {
+      "type": "object",
+      "properties": {
+        "hotel_id": {
+          "type": "integer"
+        },
+        "type_id": {
+          "type": "integer"
+        },
+        "room_number": {
+          "type": "integer"
+        },
+        "floor_number": {
+          "type": "integer"
+        }
+      }
+    },
+    "reservation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "room_id": {
+          "type": "integer"
+        },
+        "guest_id": {
+          "type": "integer"
+        },
+        "employee_id": {
+          "type": "integer"
+        },
+        "status_id": {
+          "type": "integer"
+        },
+        "start_date": {
+          "type": "string"
+        },
+        "end_date": {
+          "type": "string"
+        },
+        "balance": {
+          "type": "integer"
+        }
+      }
+    },
+    "create_reservation": {
+      "type": "object",
+      "properties": {
+        "room_id": {
+          "type": "integer"
+        },
+        "guest_id": {
+          "type": "integer"
+        },
+        "employee_id": {
+          "type": "integer"
+        },
+        "start_date": {
+          "type": "string"
+        },
+        "end_date": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

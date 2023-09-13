@@ -1,7 +1,7 @@
 import json
 import datetime
 
-from src.db_manager.models.employee_types import UserType
+from src.db_manager.models.user_types import UserType
 from src.db_manager.models.employees import Employee
 from src.db_manager.models.guests import Guest
 from src.db_manager.models.hotels import Hotel

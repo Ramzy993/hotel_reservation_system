@@ -10,6 +10,8 @@ from src import BASE_DIR
 CONF_FILE_NAME = "hrs.conf.ini"
 
 
+# TODO: move all security related configs to .env file
+
 class ConfigManager(metaclass=SingletonMeta):
     def __init__(self):
         conf_file_path = os.path.join(BASE_DIR, 'conf', CONF_FILE_NAME)

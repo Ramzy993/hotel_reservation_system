@@ -2,34 +2,35 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from src.db_manager import Base
+from src.db_manager.utils import UserRole
 
-base = declarative_base()
 
-
-class Employee(base):
+class Employee(Base):
     __tablename__ = 'employees'
 
+    # TODO: use consecutive uuid instead of regular incremental id in all table
     id = Column(Integer, primary_key=True)
-    employee_type_id = Column(Integer, ForeignKey('employee_types.id'))
+    employee_type_id = Column(Integer, ForeignKey('users_types.id'))
     hotel_id = Column(Integer, ForeignKey('hotels.id'))
     staff_number = Column(Integer, unique=True, nullable=False)
     name = Column(String, nullable=False)
-    username = Column(String, unique=True, nullable=False)
+    username = Column(String, unique=True, nullable=False, index=True)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    logged_in = Column(Boolean, nullable=False)
-    user_token = Column(String)
-    token_expiration = Column(DateTime)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    logged_in = Column(Boolean, nullable=False, default=False)
+    user_token = Column(String, default=None)
+    token_expiration = Column(DateTime, default=datetime.utcnow())
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
 
-    user_type = relationship("UserType", back_populates="employees")
+    user_type = relationship("UserType")
     hotel = relationship("Hotel", back_populates="employees")
+    reservations = relationship("Reservation", back_populates="employee")
 
     def __init__(self, hotel_id, employee_type_id, staff_number, name, username, password, email):
         self.hotel_id = hotel_id
@@ -39,11 +40,9 @@ class Employee(base):
         self.username = username
         self.password = generate_password_hash(password=password)
         self.email = email
-        self.logged_in = False
-        self.user_token = None
-        self.token_expiration = None
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+
+    def is_admin(self):
+        return self.user_type.role == UserRole.ADMIN.value
 
     def is_token_expired(self):
         if self.token_expiration is None:

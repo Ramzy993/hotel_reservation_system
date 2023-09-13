@@ -1,1 +1,2 @@
-#!/usr/bin/env python3
+
+# TODO: add other endpoint for other model in the system

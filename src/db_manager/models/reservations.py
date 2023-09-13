@@ -2,14 +2,12 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 
+from src.db_manager import Base
 
-base = declarative_base()
 
-
-class Reservation(base):
+class Reservation(Base):
     __tablename__ = 'reservations'
 
     id = Column(Integer, primary_key=True)
@@ -21,8 +19,8 @@ class Reservation(base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     balance = Column(Integer)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
 
     room = relationship("Room", back_populates="reservations")
     guest = relationship("Guest", back_populates="reservations")
@@ -37,8 +35,6 @@ class Reservation(base):
         self.start_date = start_date
         self.end_date = end_date
         self.balance = balance
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
 
     def to_json(self):
         return {

@@ -3,19 +3,25 @@ from functools import wraps
 from flask import request
 from flask_jwt_extended import get_jwt_identity
 
+from src.common.logger import LogHandler
 from src.db_manager.db_driver import DBDriver
 from src.web_app.standard_response import StandardResponse
+from src.db_manager.utils import RolePermissions
+
+logger = LogHandler().logger
 
 
-def validate_permission(permission):
+def validate_permission(permission: RolePermissions):
     def decorator(function):
         @wraps(function)
         def decorated_function(*args, **kwargs):
-            current_user = get_jwt_identity()
+            current_username = get_jwt_identity()
 
-            user = [DBDriver().get_guests(username=current_user), DBDriver().get_employees(username=current_user)][0]
+            # TODO: better user request.current_user in request lifetime
+            request.current_user = (DBDriver().get_guests(username=current_username) +
+                                    DBDriver().get_employees(username=current_username))[0]
 
-            if permission in user.user_type.permissions:
+            if permission.value in request.current_user.user_type.permissions:
                 return function(*args, **kwargs)
 
             return StandardResponse({"error": 'not authorized'}, 401).to_json()

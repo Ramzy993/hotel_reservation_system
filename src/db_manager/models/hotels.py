@@ -1,23 +1,20 @@
 
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String,  DateTime
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.orm import relationship
 
+from src.db_manager import Base
 from src.db_manager.utils import HotelClass
 
 
-base = declarative_base()
-
-
-class Hotel(base):
+class Hotel(Base):
     __tablename__ = 'hotels'
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     address = Column(String, nullable=False)
-    class_ = Column(String)
+    class_ = Column(Enum(*HotelClass.list_values(), name="HotelClass"), nullable=False)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 

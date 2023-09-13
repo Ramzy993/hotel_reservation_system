@@ -1,11 +1,12 @@
 
-FROM python:3.8-slim
+FROM python:3.10-slim
+RUN apt-get update
+RUN apt-get install -y libpq-dev gcc
 WORKDIR /opt/app
 RUN python -m pip install --upgrade pip
-RUN apt-get update
 COPY . /opt/app
-RUN pip install --no-cache-dir -r /opt/app/requirments.txt
-RUN mkdir output
+RUN pip install -r /opt/app/requirments.txt
+COPY ./requirments.txt /opt/app
 ENV BUILD_TIMESTAMP=${TIMESTAMP}
 EXPOSE 8008
 CMD ["python3", "main.py"]

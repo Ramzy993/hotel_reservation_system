@@ -7,20 +7,24 @@ from src.common.logger import LogHandler
 from src.db_manager.db_driver import DBDriver
 from src.web_app.api.v1.auth import auth_blueprint
 from src.web_app.api.v1.rooms import room_blueprint
-
+from src.web_app.api.v1.reservation import reservation_blueprint
+from src.web_app.api.v1.users import user_blueprint
 
 flask_app = Flask(import_name=__name__)
+
+# TODO: better use flask restful
 
 HOST = ConfigManager().get_str('FLASK_APP', 'host', fallback='localhost')
 PORT = ConfigManager().get_int('FLASK_APP', 'port', fallback=8008)
 DEBUG = ConfigManager().get_bool('FLASK_APP', 'debug', fallback=False)
 
 SWAGGER_URL = '/swagger'
-API_URL = f"http://{HOST}:{PORT}/swagger.json"
+SWAGGER_FILE = "/static/swagger.json"
+# TODO: find a way to separate swagger.json to multiple files
 
 swagger_ui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
-    API_URL,
+    SWAGGER_FILE,
     config={
         'app_name': "HRS API"
     }
@@ -43,9 +47,11 @@ def create_app():
     flask_app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
     # API V1 Registration
-    abs_api_v1_base_url = '/api/v1'
-    flask_app.register_blueprint(auth_blueprint, url_prefix=abs_api_v1_base_url)
-    flask_app.register_blueprint(room_blueprint, url_prefix=abs_api_v1_base_url)
+    api_v1_base_url = '/api/v1'
+    flask_app.register_blueprint(auth_blueprint, url_prefix=api_v1_base_url)
+    flask_app.register_blueprint(room_blueprint, url_prefix=api_v1_base_url)
+    flask_app.register_blueprint(reservation_blueprint, url_prefix=api_v1_base_url)
+    flask_app.register_blueprint(user_blueprint, url_prefix=api_v1_base_url)
 
 
 def start_app():
@@ -55,3 +61,7 @@ def start_app():
     flask_app.run(host='0.0.0.0', port=PORT, debug=DEBUG, use_reloader=True)
     logger.info(f"App is running on host name: {HOST}, port: {PORT}, with debug mode: {DEBUG}")
 
+
+@flask_app.route('/health', methods=['GET'])
+def health():
+    return {'status': 'SUCCESS'}
